@@ -1,0 +1,19 @@
+[package]
+name = "macroboard"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Turn any keyboard into a macro key board"
+repository = "https://github.com/Moxinilian/macroboard/"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tinyset = "0.4.10"
+keycode = "0.3.0"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+input = "0.7.1"
+libc = "0.2.126"
+nix = "0.24.1"
