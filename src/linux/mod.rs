@@ -71,6 +71,7 @@ impl LibinputInterface for Interface {
     }
 
     fn close_restricted(&mut self, fd: RawFd) {
+        // SAFETY: libinput does not have bugs
         unsafe {
             File::from_raw_fd(fd);
         }
