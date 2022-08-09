@@ -30,7 +30,7 @@ Utility to turn any keyboard into a macro key board on Linux (via libinput).
 
 The Windows API is utter trash, there is no good way to achieve the functionality of this project on Windows as open source software.
 
-> If you need a macro key board on Windows using `macroboard`, set up a Linux machine on which you plug your keyboard. Then, network the Linux machine with the Windows machine to send events from Linux to Windows. I know, this is very sad.
+If you need a macro key board on Windows using `macroboard`, set up a Linux machine on which you plug your keyboard. Then, network the Linux machine with the Windows machine to send events from Linux to Windows. I know, this is very sad.
 
 ### lmao why?
 
