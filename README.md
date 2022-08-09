@@ -1,6 +1,6 @@
 # macroboard
 
-Utility to turn any keyboard into a macro key board on Linux (via libinput). Still in development, not very much tested yet.
+Utility to turn any keyboard into a macro key board on Linux (via libinput).
 
 ## Features
 
@@ -28,9 +28,13 @@ Utility to turn any keyboard into a macro key board on Linux (via libinput). Sti
 
 ## About Windows support
 
-The Windows API is utter trash, there is no good way to achieve the functionality of this project on Windows as open source software. If you need a macro key board on Windows using `macroboard`, set up a Linux machine on which you plug your keyboard and network it with the Windows machine that needs the input.
+The Windows API is utter trash, there is no good way to achieve the functionality of this project on Windows as open source software.
 
-There are two main requirements for an operating system to support `macroboard` in an useful way:
+> If you need a macro key board on Windows using `macroboard`, set up a Linux machine on which you plug your keyboard. Then, network the Linux machine with the Windows machine to send events from Linux to Windows. I know, this is very sad.
+
+### lmao why?
+
+There are two main requirements for an operating system to support `macroboard` in a useful way:
 
 - Provide a way to differentiate keyboard inputs from one keyboard or another. Good news, Windows has a low level API to do that: RawInput.
 - Provide a way to block inputs coming from macro board keyboards. Good news-ish, Windows provides a very inefficient but sufficient (I guess) way to do this: global hooks.
