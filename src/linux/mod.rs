@@ -17,7 +17,7 @@ use input::{
     Event, Libinput, LibinputInterface,
 };
 
-use crate::trigger::Triggers;
+use crate::{trigger::Triggers, ListeningCmd};
 
 const UAPI_IOC_MAGIC: u8 = b'E';
 const UAPI_IOC_EVIOCGRAB: u8 = 0x90;
@@ -86,24 +86,31 @@ pub fn run_input_handler(mut triggers: Triggers) {
 
     let mut pressed = HashMap::new();
 
-    loop {
+    'listener: loop {
         input.dispatch().unwrap();
         for event in &mut input {
             if let Event::Keyboard(KeyboardEvent::Key(e)) = event {
                 let device = e.device();
                 let name = device.name();
                 let pressed = pressed.entry(name.to_owned()).or_insert_with(SetU32::new);
-                match e.key_state() {
+                let cmd = match e.key_state() {
                     KeyState::Pressed => {
                         pressed.insert(e.key());
-                        if triggers.try_run(name, pressed) {
+                        let (was_pressed, cmd) = triggers.try_run(name, pressed);
+                        if was_pressed {
                             pressed.remove(e.key());
                         }
+                        cmd
                     }
                     KeyState::Released => {
                         pressed.remove(e.key());
-                        triggers.release(name);
+                        triggers.release(name)
                     }
+                };
+
+                match cmd {
+                    ListeningCmd::Continue => (),
+                    ListeningCmd::Stop => break 'listener,
                 }
             }
         }

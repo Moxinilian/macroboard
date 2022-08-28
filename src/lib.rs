@@ -6,7 +6,7 @@ compile_error!("only linux platforms are supported");
 mod platform;
 
 mod trigger;
-pub use trigger::{KeyboardTriggers, Triggers};
+pub use trigger::{KeyboardTriggers, ListeningCmd, Triggers};
 
 #[doc(no_inline)]
 pub use keycode::KeyMappingCode;

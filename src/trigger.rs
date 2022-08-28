@@ -1,12 +1,47 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::{BitOr, BitOrAssign},
+};
 
 use keycode::KeyMappingCode;
 use tinyset::SetU32;
 
 struct Trigger {
     trigger: SetU32,
-    on_pressed: Box<dyn FnMut()>,
-    on_released: Option<Box<dyn FnMut()>>,
+    on_pressed: Box<dyn FnMut() -> ListeningCmd>,
+    on_released: Option<Box<dyn FnMut() -> ListeningCmd>>,
+}
+
+/// Commands the listening server to stop or
+/// continue.
+#[derive(Default, Clone, Copy)]
+pub enum ListeningCmd {
+    #[default]
+    Continue,
+    Stop,
+}
+
+impl From<()> for ListeningCmd {
+    fn from(_: ()) -> Self {
+        Default::default()
+    }
+}
+
+impl BitOr for ListeningCmd {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (ListeningCmd::Continue, ListeningCmd::Continue) => ListeningCmd::Continue,
+            _ => ListeningCmd::Stop,
+        }
+    }
+}
+
+impl BitOrAssign for ListeningCmd {
+    fn bitor_assign(&mut self, rhs: Self) {
+        *self = *self | rhs;
+    }
 }
 
 /// Stores the key bindings and actions associated
@@ -42,28 +77,39 @@ impl KeyboardTriggers {
     }
 
     /// Inserts an action to perform when the provided keys are all pressed.
-    pub fn insert<P>(&mut self, keys: &[KeyMappingCode], on_pressed: P)
+    pub fn insert<P, C>(&mut self, keys: &[KeyMappingCode], mut on_pressed: P)
     where
-        P: FnMut() + 'static,
+        C: Into<ListeningCmd>,
+        P: FnMut() -> C + 'static,
     {
-        self.insert_boxed(keys, Box::new(on_pressed), None)
+        self.insert_boxed(keys, Box::new(move || on_pressed().into()), None)
     }
 
     /// Inserts an action to perform when the provided keys are all pressed,
     /// and an action to perform when the key combination is released.
-    pub fn insert_with_release<P, R>(&mut self, keys: &[KeyMappingCode], on_pressed: P, on_released: R)
-    where
-        P: FnMut() + 'static,
-        R: FnMut() + 'static,
+    pub fn insert_with_release<P, R, C1, C2>(
+        &mut self,
+        keys: &[KeyMappingCode],
+        mut on_pressed: P,
+        mut on_released: R,
+    ) where
+        C1: Into<ListeningCmd>,
+        C2: Into<ListeningCmd>,
+        P: FnMut() -> C1 + 'static,
+        R: FnMut() -> C2 + 'static,
     {
-        self.insert_boxed(keys, Box::new(on_pressed), Some(Box::new(on_released)))
+        self.insert_boxed(
+            keys,
+            Box::new(move || on_pressed().into()),
+            Some(Box::new(move || on_released().into())),
+        )
     }
 
     fn insert_boxed(
         &mut self,
         keys: &[KeyMappingCode],
-        on_pressed: Box<dyn FnMut()>,
-        on_released: Option<Box<dyn FnMut()>>,
+        on_pressed: Box<dyn FnMut() -> ListeningCmd>,
+        on_released: Option<Box<dyn FnMut() -> ListeningCmd>>,
     ) {
         self.triggers.push(Trigger {
             trigger: keys.iter().copied().map(crate::platform::keymap).collect(),
@@ -104,9 +150,11 @@ impl Triggers {
             .collect()
     }
 
-    /// Returns whether an action was run.
-    pub(crate) fn try_run(&mut self, keyboard: &str, keys: &SetU32) -> bool {
+    /// Returns whether an action was run, along with a command
+    /// tasking the executor to stop or continue.
+    pub(crate) fn try_run(&mut self, keyboard: &str, keys: &SetU32) -> (bool, ListeningCmd) {
         let mut triggered = false;
+        let mut cmd = ListeningCmd::default();
         if let Some(candidates) = self.candidates.get_mut(keyboard) {
             let mut to_release = None;
             for (i, trigger) in candidates.triggers.iter_mut().enumerate() {
@@ -114,7 +162,7 @@ impl Triggers {
                     triggered = true;
                     to_release = candidates.current_pressed;
                     candidates.current_pressed = Some(i);
-                    (trigger.on_pressed)();
+                    cmd |= (trigger.on_pressed)();
                     break;
                 }
             }
@@ -126,15 +174,16 @@ impl Triggers {
                     .expect("to release trigger not found")
                     .on_released
                 {
-                    release();
+                    cmd |= release();
                 }
             }
         }
 
-        triggered
+        (triggered, cmd)
     }
 
-    pub(crate) fn release(&mut self, keyboard: &str) {
+    pub(crate) fn release(&mut self, keyboard: &str) -> ListeningCmd {
+        let mut cmd = ListeningCmd::default();
         if let Some(candidates) = self.candidates.get_mut(keyboard) {
             if let Some(release) = candidates.current_pressed {
                 if let Some(release) = &mut candidates
@@ -143,11 +192,13 @@ impl Triggers {
                     .expect("to release trigger not found")
                     .on_released
                 {
-                    release();
+                    cmd |= release();
                 }
 
                 candidates.current_pressed = None;
             }
         }
+
+        cmd
     }
 }

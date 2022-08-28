@@ -1,6 +1,6 @@
 use std::{io::Write, time::Duration};
 
-use macroboard::{KeyMappingCode, KeyboardTriggers, Triggers};
+use macroboard::{KeyMappingCode, KeyboardTriggers, ListeningCmd, Triggers};
 
 fn main() {
     std::thread::spawn(|| {
@@ -35,7 +35,7 @@ fn main() {
 
     keyboard_triggers.insert(&[KeyMappingCode::KeyE], || println!("Hello!"));
 
-    keyboard_triggers.insert(&[KeyMappingCode::Escape], || std::process::exit(0));
+    keyboard_triggers.insert(&[KeyMappingCode::Escape], || ListeningCmd::Stop);
 
     let mut triggers = Triggers::default();
     triggers.insert(keyboard_triggers);
