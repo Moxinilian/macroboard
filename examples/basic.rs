@@ -42,4 +42,6 @@ fn main() {
 
     // Start the event loop
     triggers.listen();
+
+    println!("Listener gracefully stopped.");
 }
