@@ -15,6 +15,7 @@ struct Trigger {
 /// Commands the listening server to stop or
 /// continue.
 #[derive(Default, Clone, Copy)]
+#[must_use]
 pub enum ListeningCmd {
     #[default]
     Continue,
