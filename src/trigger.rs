@@ -137,7 +137,7 @@ impl Triggers {
             .insert(triggers.keyboard_name.clone(), triggers);
     }
 
-    /// Blocks the process to detect inputs for the configured keyboards
+    /// Blocks the thread to detect inputs for the configured keyboards
     /// and run the actions associated to key combinations.
     pub fn listen(self) {
         crate::platform::run_input_handler(self);
@@ -183,6 +183,8 @@ impl Triggers {
         (triggered, cmd)
     }
 
+    /// Releases the currently pressed key combination on the
+    /// provided keyboard.
     pub(crate) fn release(&mut self, keyboard: &str) -> ListeningCmd {
         let mut cmd = ListeningCmd::default();
         if let Some(candidates) = self.candidates.get_mut(keyboard) {
