@@ -46,7 +46,8 @@ impl LibinputInterface for Interface {
             .map_err(|err| err.raw_os_error().unwrap())?;
 
         let mut name_buf = [0; 256];
-        // SAFETY: buffer is not referenced after end of ioctl call
+        // SAFETY: buffer pointer is not kept by the OS after end of ioctl call
+        // so the mutable reference is effectively dead
         unsafe {
             eviocgname(fd, &mut name_buf).map_err(|_| -1)?;
         }
