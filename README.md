@@ -18,7 +18,7 @@ Utility to turn any keyboard into a macro key board on Linux (via libinput).
 
 - No paid license, everything is free software!  
 
-[^1]: Only Wayland has been tested in development so far.
+[^1]: Only Wayland has been tested in production so far, but considering I only use libinput it should also work well to the extent that X.Org does? Confirmation from third parties would be appreciated.
 
 ## Known issues / contribution opportunities
 
