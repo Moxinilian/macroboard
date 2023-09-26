@@ -4,6 +4,8 @@ Utility to turn any keyboard into a macro key board on Linux (via libinput).
 
 ## Features
 
+- Implement shortcuts on your external keyboards in Rust  
+
 - Create one-key or key-combination keyboard shortcuts  
 
 - Support an unlimited amount of keyboards  
@@ -18,7 +20,7 @@ Utility to turn any keyboard into a macro key board on Linux (via libinput).
 
 - No paid license, everything is free software!  
 
-[^1]: Only Wayland has been tested in production so far, but considering I only use libinput it should also work well to the extent that X.Org does? Confirmation from third parties would be appreciated.
+[^1]: X.Org has only been tested in development so far, but considering I only use libinput it should also work well to the extent that X.Org does? Confirmation from third parties would be appreciated.
 
 ## Known issues / contribution opportunities
 
@@ -28,7 +30,7 @@ Utility to turn any keyboard into a macro key board on Linux (via libinput).
 
 ## About Windows support
 
-The Windows API is utter trash, there is no good way to achieve the functionality of this project on Windows as open source software.
+The Windows API is really not great, there is no good way to achieve the functionality of this project on Windows as open source software.
 
 If you need a macro key board on Windows using `macroboard`, set up a Linux machine on which you plug your keyboard. Then, network the Linux machine with the Windows machine to send events from Linux to Windows. I know, this is very sad.
 
@@ -41,4 +43,4 @@ There are two main requirements for an operating system to support `macroboard` 
 
 Nice. Just one small problem: those are two different APIs that cannot co-operate in a reliable way. The only option left is to write a custom driver to implement Linux-like functionality in the Windows NT kernel, which is hard to do in a secure way and costs multiple hundreds of dollars to publish because of certification requirements. I am not doing that.
 
-I used to have okay feelings about Windows as a platform before this experience. I would now like to quote Torvalds' famous words towards Nvidia and direct them at Microsoft on this one.
+I used to have okay feelings about Windows as a platform before this experience. Now, that's a different story.
